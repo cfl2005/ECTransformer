@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
 import os
 import sys
 import json
@@ -18,7 +16,7 @@ print('tcp://127.0.0.1:5560')
 while True:
     dat = socket.recv()
     print(dat)
-    # 发回内容
+    # 路垄禄脴脛脷脠脻
     socket.send(dat)
     print('-'*40)
 
