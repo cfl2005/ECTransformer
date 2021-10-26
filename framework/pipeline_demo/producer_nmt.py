@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
 import os
 import sys
 sys.path.append('../../')
@@ -32,8 +30,7 @@ def producer(ip, port, datafile):
     print('total:', total)
     print('total_batch:', total_batch)
 
-    msg = input('输入回车开始发送数据:')
-    # 开始Producer之前必须先启动resultcollector和consumer
+    msg = input('press enter to start:')
     for i in tqdm(range(total_batch), ncols=80):
         wid = '%d_%d' % (work_id, i)
         work_message = {'id': wid, 'texts':sentlist[i]}
