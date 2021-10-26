@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
 
 import os
 import sys
@@ -36,13 +35,8 @@ def dowork():  #ssdb
             for i in range(l):
                 dat = '%s,%s' % (data, time.time())
                 ssdb.qpush(queue_out, dat)
-            print('转发成功:%s' % dat)
 
 
 if __name__ == '__main__':
-    # 启动
     p = Process(target=dowork)#, args=(ssdb,)
     p.start()
-
-
-
