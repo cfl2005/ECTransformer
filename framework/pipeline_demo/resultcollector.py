@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
 
 import os
 import sys
@@ -17,9 +16,6 @@ def result_collector(ip, port_out, total, result):
     collecter_data = {}
     for x in range(total):
         result = receiver.recv_json()
-        # 这里可以再发送，分主题订阅；
-
-        # 统计
         cons = 'work_%d' % result['consumer']
         if cons in collecter_data.keys():
             collecter_data[cons] += 1
