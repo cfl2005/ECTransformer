@@ -29,24 +29,18 @@ def run_epoch(data, model, loss_compute):
 
 
 def train(train_data, dev_data, model, model_par, criterion, optimizer):
-    """训练并保存模型"""
-    # 初始化模型在dev集上的最优Loss为一个较大值
     best_bleu_score = 0.0
     early_stop = config.early_stop
     for epoch in range(1, config.epoch_num + 1):
-        # 模型训练
         model.train()
         train_loss = run_epoch(train_data, model_par,
                                MultiGPULossCompute(model.generator, criterion, config.device_id, optimizer))
         logging.info("Epoch: {}, loss: {}".format(epoch, train_loss))
-        # 模型验证
         model.eval()
         dev_loss = run_epoch(dev_data, model_par,
                              MultiGPULossCompute(model.generator, criterion, config.device_id, None))
         bleu_score = evaluate(dev_data, model)
         logging.info('Epoch: {}, Dev loss: {}, Bleu Score: {}'.format(epoch, dev_loss, bleu_score))
-
-        # 如果当前epoch的模型在dev集上的loss优于之前记录的最优loss则保存当前模型，并更新最优loss值
         if bleu_score > best_bleu_score:
             torch.save(model.state_dict(), config.model_path)
             best_bleu_score = bleu_score
@@ -61,7 +55,6 @@ def train(train_data, dev_data, model, model_par, criterion, optimizer):
 
 
 class LossCompute:
-    """简单的计算损失和进行参数反向传播更新训练的函数"""
 
     def __init__(self, generator, criterion, opt=None):
         self.generator = generator
@@ -142,14 +135,11 @@ class MultiGPULossCompute:
 
 
 def evaluate(data, model, mode='dev', use_beam=True):
-    """在data上用训练好的模型进行预测，打印模型翻译结果"""
     sp_chn = chinese_tokenizer_load()
     trg = []
     res = []
     with torch.no_grad():
-        # 在data的英文数据长度上遍历下标
         for batch in tqdm(data):
-            # 对应的中文句子
             cn_sent = batch.trg_text
             src = batch.src
             src_mask = (src != 0).unsqueeze(-2)
@@ -177,11 +167,9 @@ def evaluate(data, model, mode='dev', use_beam=True):
 
 def test(data, model, criterion):
     with torch.no_grad():
-        # 加载模型
         model.load_state_dict(torch.load(config.model_path))
         model_par = torch.nn.DataParallel(model)
         model.eval()
-        # 开始预测
         test_loss = run_epoch(data, model_par,
                               MultiGPULossCompute(model.generator, criterion, config.device_id, None))
         bleu_score = evaluate(data, model, 'test')
@@ -189,7 +177,6 @@ def test(data, model, criterion):
 
 
 def translate(src, model, use_beam=True):
-    """用训练好的模型进行预测单句，打印模型翻译结果"""
     sp_chn = chinese_tokenizer_load()
     with torch.no_grad():
         #model.load_state_dict(torch.load(config.model_path))
@@ -206,16 +193,13 @@ def translate(src, model, use_beam=True):
         translation = [sp_chn.decode_ids(_s) for _s in decode_result]
         return translation
 
-# 编码处理
 def translate_encode(src, model):
     with torch.no_grad():
         src_mask = (src != 0).unsqueeze(-2)
         src_enc = model.encode(src, src_mask)
     return src_enc, src_mask
 
-# 解码处理
 def translate_decode(src_enc, src_mask, model, use_beam=True):
-    """用训练好的模型进行预测单句，打印模型翻译结果"""
     sp_chn = chinese_tokenizer_load()
     with torch.no_grad():
         if use_beam:
@@ -229,9 +213,7 @@ def translate_decode(src_enc, src_mask, model, use_beam=True):
         translation = [sp_chn.decode_ids(_s) for _s in decode_result]
         return translation
 
-# 解码，使用子模型
 def translate_decode_split(src, src_mask, model_decode, model_generator, use_beam=True):
-    """用训练好的模型进行预测单句，打印模型翻译结果"""
     sp_chn = chinese_tokenizer_load()
     with torch.no_grad():
         if use_beam:
