@@ -17,10 +17,7 @@ from utils import english_tokenizer_load
 from model import make_model, LabelSmoothing
 import torch.multiprocessing as mp
 
-# from Pytorch_Memory_Utils.gpu_mem_track import MemTracker  # 引用显存跟踪代码
-
 def one_sentence_translate(sent, beam_search=True, online=0):
-    # 初始化模型
     model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                        config.d_model, config.d_ff, config.n_heads, config.dropout)
     model.load_state_dict(torch.load(config.model_path))
@@ -32,7 +29,7 @@ def one_sentence_translate(sent, beam_search=True, online=0):
         while 1:
             try:
                 print('-'*40)
-                sent = input('请输入个句子(Q退出):').strip()
+                sent = input('input sentences:').strip()
             except :
                 sent = ''
             if sent  in [''] : continue
@@ -49,36 +46,30 @@ def one_sentence_translate(sent, beam_search=True, online=0):
         print(ret)
 
 def translate_example():
-    """单句翻译示例"""
     sent = "The near-term policy remedies are clear: raise the minimum wage to a level that will keep a " \
            "fully employed worker and his or her family out of poverty, and extend the earned-income tax credit " \
            "to childless workers."
-    # tgt: 近期的政策对策很明确：把最低工资提升到足以一个全职工人及其家庭免于贫困的水平，扩大对无子女劳动者的工资所得税减免。
     one_sentence_translate(sent, beam_search=True)
 
 def online_translate():
     config.beam_size = 4
     one_sentence_translate('', beam_search=True, online=1)
 #-----------------------------------------
-# 单条文本转模型输入
 def get_one_sample(sent):
     BOS = english_tokenizer_load().bos_id()
     EOS = english_tokenizer_load().eos_id()
     src_tokens = [[BOS] + english_tokenizer_load().EncodeAsIds(sent) + [EOS]]
     return np.array(src_tokens)
 
-# 多条文本转模型输入
 def get_sample(sents):
     BOS = english_tokenizer_load().bos_id()
     EOS = english_tokenizer_load().eos_id()
     PAD = english_tokenizer_load().pad_id()
     src_tokens = [[BOS] + english_tokenizer_load().EncodeAsIds(sent) + [EOS] for sent in sents]
-    # 多句子时要注意句子长度不一致，要处理成统一大小
     ret = pad_sequence([torch.from_numpy(np.array(x)) for x in src_tokens], 
                         batch_first=True, padding_value=PAD)
     return ret
 
-# 单句子翻译
 def translate_one_sample(txt, model, beam_search=True):
     BOS = english_tokenizer_load().bos_id()
     EOS = english_tokenizer_load().eos_id()
@@ -88,7 +79,6 @@ def translate_one_sample(txt, model, beam_search=True):
     #print('translate:', ret)
     return ret
 
-# 多句子逐条翻译 
 def translate_texts(sentences, model, beam_search=True):
     result = []
     for txt in sentences:
@@ -97,18 +87,13 @@ def translate_texts(sentences, model, beam_search=True):
             result.append(ret)
     return result
 
-    
-# 批量预测
 def translate_batch(sentences, model, beam_search=True, batch_size=64):
-    # 句子按batch_size拆分
     total = len(sentences)
     #if total > batch_size:
     sentlist = [sentences[i*batch_size:(i+1)*batch_size] for i in range(np.ceil(total/batch_size).astype(int))]
     result = []
     torch.cuda.empty_cache()
-    
-    # gpu_tracker = MemTracker() 
-    # gpu_tracker.track()                  # 开始检测    
+     
     for txts in sentlist:
         batch_dat = get_sample(txts)
         batch_input = torch.LongTensor(batch_dat).to(config.device)
@@ -116,10 +101,8 @@ def translate_batch(sentences, model, beam_search=True, batch_size=64):
         #print('translate:\n', '\n'.join(ret))
         result.extend(ret)
     torch.cuda.empty_cache()
-    # gpu_tracker.track()                  # 开始检测
     return result
 
-# 读入文件
 def readtxt(fname, encoding='utf-8'):
     try:
         with open(fname, 'r', encoding=encoding) as f:  
@@ -128,7 +111,6 @@ def readtxt(fname, encoding='utf-8'):
     except Exception as e:
         return ''
 
-# 保存文本信息到文件
 def savetofile(txt, filename, encoding='utf-8', method='a+'):
     try:
         with open(filename, method, encoding=encoding) as f:  
@@ -137,24 +119,20 @@ def savetofile(txt, filename, encoding='utf-8', method='a+'):
     except :
         return 0
 
-# 读取GPU当前显存使用情况
+
 def GPU_memory(gpuid=0):
     NUM_EXPAND = 1024 * 1024
-    #获取GPU i的handle，后续通过handle来处理
     handle = nvmlDeviceGetHandleByIndex(gpuid)
-    #通过handle获取GPU i的信息
     info = nvmlDeviceGetMemoryInfo(handle)
 
-    #gpu_memory_total = info.total / NUM_EXPAND  #GPU i的总显存
-    gpu_memory_used = info.used / NUM_EXPAND  #转为MB单位
+    gpu_memory_used = info.used / NUM_EXPAND
     #print('Total Memory:%d MB,  Used Memory:%d MB'% (gpu_memory_total, gpu_memory_used))
     return  gpu_memory_used
 
-## GPU显存监控记录
 class GPU_MEM():
     def __init__(self, gupid=0, interval=1):
         self.gupid = gupid
-        self.interval = interval    #1秒间隔
+        self.interval = interval
         self.status = 0
         self.data = []
         self.queue = mp.Queue()
