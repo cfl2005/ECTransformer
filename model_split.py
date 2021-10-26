@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
 import argparse
 import os
 import re
@@ -30,7 +28,6 @@ if __name__ == '__main__':
     device = torch.device("cuda" if use_cuda else "cpu")
     torch.manual_seed(1)
 
-    # 加载模型
     model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                        config.d_model, config.d_ff, config.n_heads, config.dropout)
     model.share_memory()
@@ -38,7 +35,6 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
     
-    # 分别定义模型
     encoder = model.encoder
     decoder = model.decoder
     src_embed = model.src_embed
@@ -52,18 +48,7 @@ if __name__ == '__main__':
     #model_path = './experiment/model.pth'
     #torch.save(model.state_dict(), config.model_path)
     outpath = './experiment/'
-    '''
-    # 只保存权重
-    encode_path = os.path.join(outpath, 'encoder.pth')
-    decoder_path = os.path.join(outpath, 'decoder.pth')
-    generator_path = os.path.join(outpath, 'generator.pth')
-    
-    torch.save(model_encode.state_dict(), encode_path)
-    torch.save(model_decode.state_dict(), decoder_path)
-    torch.save(generator.state_dict(), generator_path)
-    '''
 
-    # 保存完整模型
     model_path = os.path.join(outpath, 'model_all.pth')
     encode_path = os.path.join(outpath, 'encoder_all.pth')
     decoder_path = os.path.join(outpath, 'decoder_all.pth')
