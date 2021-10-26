@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
 
 # from sanic.response import json
 # from sanic.websocket import WebSocketProtocol
@@ -26,7 +25,7 @@ def dowork(inmsg, outmsg): #
         l = random.randrange(2,5)
         for i in range(l):
             outmsg.put('%s,%s' % (dat, time.time()) )
-        print('转发成功:%s' % dat)
+        print('sucess:%s' % dat)
 
 app = Sanic(__name__)
 
@@ -50,7 +49,6 @@ async def feed(request, ws):
         print('Received: ' + dat)
         inmsg.put(dat)
 
-    # 实际使用时要判断
     while True:
         #while not outmsg.empty():
         data = outmsg.get()
@@ -65,7 +63,6 @@ async def rev(request, ws):
         await ws.send(data)
 
 if __name__ == '__main__':
-    # 启动
     #app.add_task(dowork()) #inmsg, outmsg
 
     p = Process(target=dowork, args=(inmsg, outmsg))
@@ -76,6 +73,3 @@ if __name__ == '__main__':
 
     # app.run(host="0.0.0.0", port=8000, protocol=WebSocketProtocol)
     print('running...')
-
-
-
