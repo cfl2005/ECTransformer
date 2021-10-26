@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
-
 import argparse
 import os
 import re
@@ -34,15 +31,14 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import warnings
 warnings.filterwarnings('ignore')
 
-nvmlInit() #初始化
+nvmlInit()
 
-from Pytorch_Memory_Utils.gpu_mem_track import MemTracker  # 引用显存跟踪代码
-gpu_tracker = MemTracker()      # 创建显存检测对象
+from Pytorch_Memory_Utils.gpu_mem_track import MemTracker
+gpu_tracker = MemTracker()
 
 
 def translate_batch_sub(sentences, batch_size=64):
     pass
-    # 加载模型
     model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                        config.d_model, config.d_ff, config.n_heads, config.dropout)
 
@@ -67,7 +63,6 @@ if __name__ == '__main__':
     torch.manual_seed(1)
     mp.set_start_method('spawn')
 
-    # 加载数据文件
     txts = readtxt(datafile)
     if txts:
         sentences = txts.splitlines()
@@ -77,19 +72,16 @@ if __name__ == '__main__':
         print('data file error')
         sys.exit()
 
-    # GPU记录
     obj = GPU_MEM()
     obj.build()
     obj.start()
 
-    # 开始计时
     print(' NMT Task: Single Process Batch '.center(40,'-'))
     print('total sentences:%d'%total_sent)
     print('Building model...')
     start = time.time()
 
-    # 加载模型
-    gpu_tracker.track()                  # 开始检测
+    gpu_tracker.track()                
     model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                        config.d_model, config.d_ff, config.n_heads, config.dropout)
     
@@ -98,27 +90,23 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
     loadstime = (time.time() - start)*1000
-    gpu_tracker.track()                  # 开始检测
+    gpu_tracker.track()               
 
-    # 开始计时
     print('Create process...')
     start = time.time()
     torch.cuda.empty_cache()
-    # 主进程加载模型，共享给子进程
     p = mp.Process(target=translate_batch, args=(sentences, model, True, batch_size))
    
-    # 子进程加载模型
     # p = mp.Process(target=translate_batch_sub, args=(sentences, batch_size))
-    gpu_tracker.track()                  # 开始检测
+    gpu_tracker.track()                
     
     print('Start process...')
     p.start()
     memory = GPU_memory(0)
     print('Process running...')
     p.join()
-    gpu_tracker.track()                  # 开始检测
+    gpu_tracker.track()              
 
-    # 显存记录器停止并输出结果
     obj.stop()
     print('mem data:', obj.data)
     print('mem_ave:', obj.mem_ave())
@@ -127,10 +115,6 @@ if __name__ == '__main__':
     predict_time = (time.time() - start)*1000
     avetime = predict_time/total_sent
     
-    print('加载模型用时:%f 毫秒' % loadstime )
-    print('Used Memory:%d MB'%memory)
-    print('预测总计用时:%f 毫秒' % predict_time )
-    print('预测单句用时:%f 毫秒' % avetime )
 
     result = {'name':'SingleProcess', 'total_sent':total_sent,
                 'memory':memory, 'loadstime': loadstime, 
@@ -138,7 +122,4 @@ if __name__ == '__main__':
                 'mem data':obj.data, 'mem_ave': obj.mem_ave(), 'mem_max':obj.mem_max()
              }
 
-    # 追加到日志文件
     savetofile(json.dumps(result), logfile)
-
-
