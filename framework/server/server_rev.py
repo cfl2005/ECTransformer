@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
 
 import os
 import sys
@@ -24,5 +23,3 @@ async def rev(request, ws):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8001, workers=1, debug=True)
-
-
