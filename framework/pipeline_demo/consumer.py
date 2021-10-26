@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
 
 import os
 import sys
@@ -26,7 +25,7 @@ def consumer(ip, port, port_out):
     consumer_sender = context.socket(zmq.PUSH)
     consumer_sender.connect("tcp://%s:%d"%(ip, port_out))
     
-    # 循环处理
+    # 脩颅禄路麓娄脌铆
     while True:
         work = consumer_receiver.recv_json()
         data = work['num']
@@ -39,18 +38,15 @@ def consumer(ip, port, port_out):
 if __name__ == '__main__':
     from multiprocess import Process
 
-    # worker数量
     workers = 2
     if len(sys.argv)==2:
         workers = int(sys.argv[1])
  
-    # 创建
     p_workers = []
     for i in range(workers):
         p = Process(target=consumer, args=('127.0.0.1', 5557, 5558) )
         p_workers.append(p)
-
-    # 启动
+        
     for i in range(workers):
         p_workers[i].start()
 
