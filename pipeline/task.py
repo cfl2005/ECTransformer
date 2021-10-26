@@ -1,13 +1,6 @@
 # !/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# ------------------------------------------------------------------------
-# @Time     : 2020/9/29 
-# @Author   : xiaoshan.zhang
-# @Emial    : zxssdu@yeah.net
-# @File     : task.py
-# @Software : PyCharm
-# ------------------------------------------------------------------------
 
 import time
 import random
@@ -16,7 +9,6 @@ from src.parallel_pipeline.pipeline import AbstractPipe
 class DataTransformPipe(AbstractPipe):
 
     def __init__(self, indicator, pipe_name):
-        # 先初始化父类
         super(DataTransformPipe, self).__init__(pipe_name=pipe_name)
         self.indicator = indicator
 
@@ -35,9 +27,6 @@ class DataTransformPipe(AbstractPipe):
         return dic
 
 class MapPipe(AbstractPipe):
-    """
-    实现map功能的 pipe
-    """
     def __init__(self, add_unit):
         super(MapPipe, self).__init__()
         self.add_unit = add_unit
@@ -59,9 +48,6 @@ class MapPipe(AbstractPipe):
 
 
 class ReducePipe(AbstractPipe):
-    """
-    实现Reduce功能的Pipe
-    """
     def __init__(self):
         super(ReducePipe, self).__init__()
 
