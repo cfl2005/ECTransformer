@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
 import os
 import sys
 import time
@@ -54,7 +52,6 @@ def consumer(ip, port, port_out):
     model.eval()
     torch.cuda.empty_cache()
 
-    # 创建ID号，创建ZMQ 
     consumer_id = random.randrange(1000,9999)
     print("consumer ID: #%s" % (consumer_id) )
     context = zmq.Context()
@@ -66,40 +63,28 @@ def consumer(ip, port, port_out):
     consumer_sender = context.socket(zmq.PUSH)
     consumer_sender.connect("tcp://%s:%s"%(ip, port_out))
     
-    # 循环处理
     while True:
-        # 获取任务数据
         data = consumer_receiver.recv_json()
         wid = data['id']
         sentences = data['texts']
 
-        # 预测结果
         batch_size = 8
         result = translate_batch(sentences, model, batch_size=batch_size)
         
-        # 组合数据
         jsdat = {'id': wid, 'result':result, 'consumer':consumer_id,}
         consumer_sender.send_json(jsdat)
 
 
 if __name__ == '__main__':
 
-    # worker数量
     workers = 2
     if len(sys.argv)==2:
         workers = int(sys.argv[1])
  
-    # 创建
     p_workers = []
     for i in range(workers):
         p = mp.Process(target=consumer, args=('127.0.0.1', 5557, 5558) )
         p_workers.append(p)
 
-    # 启动
     for i in range(workers):
         p_workers[i].start()
-
-    #consumer()
-
-
-
