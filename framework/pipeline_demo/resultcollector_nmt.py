@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
 import os
 # sys.path.append('../../')
 
@@ -22,15 +20,13 @@ def result_collector(ip, port_out, total):
     #for x in range(1000):
     while True:
         result = receiver.recv_json()
-        # 这里可以再发送，分主题订阅；
 
         sents = result['result']
         t_sents = len(sents)
 
         wid = result['id']
         total_result += t_sents
-        
-        # 统计各个任务完成数量
+
         cid = result['consumer']
         cons = 'work_%d' % cid
         if cons in collecter_data.keys():
