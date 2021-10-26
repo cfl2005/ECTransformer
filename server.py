@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
-
 import argparse
 import os
 import re
@@ -29,7 +26,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-parser = argparse.ArgumentParser(description='服务端')
+parser = argparse.ArgumentParser(description='server')
 parser.add_argument('--ip', type=str, default="0.0.0.0", help='IP')
 parser.add_argument('--port', type=int, default=8090, help='port,default:8090')
 parser.add_argument('--debug', type=int, default=1, help='debug')
@@ -37,7 +34,6 @@ args = parser.parse_args()
 
 app = Flask(__name__)
 
-# 文本转模型输入
 def get_sample(sent):
     BOS = english_tokenizer_load().bos_id()  # 2
     EOS = english_tokenizer_load().eos_id()  # 3
@@ -45,14 +41,12 @@ def get_sample(sent):
     batch_input = torch.LongTensor(np.array(src_tokens)).to(config.device)
     return batch_input
 
-# 加载模型
 model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                    config.d_model, config.d_ff, config.n_heads, config.dropout)
 
 
 @app.route('/')
 def index():
-    # 读取当前服务列表
     datlist = svclist.jsondat()
     dat = [ list(x.values()) for x in datlist]
     print(dat)
@@ -85,7 +79,7 @@ if os.name=='nt':
         debug = bool(args.debug)
     )
 else:
-    # 启动服务 for linux 
+    # 鍚姩鏈嶅姟 for linux 
     from gevent import pywsgi
     logging.info('Running under Linux...')
     logging.info('service is ready...')
