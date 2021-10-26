@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
-
 import argparse
 import os
 import re
@@ -36,7 +33,6 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import warnings
 warnings.filterwarnings('ignore')
 
-# 文本转模型输入
 def get_sample(sent):
     BOS = english_tokenizer_load().bos_id()  # 2
     EOS = english_tokenizer_load().eos_id()  # 3
@@ -71,11 +67,7 @@ def translate_sample1(txts, model, beam_search=True):
     ret = translate(batch_input, model, use_beam=beam_search)
     print('translate:', ret)
 
-# 把文本处理后发送到队列中
 def send_dat(texts, q_text, q_result):
-    """
-    发送数据
-    """
     print('sending text...')
     dt = texts.splitlines()
     total = len(dt)
@@ -100,9 +92,6 @@ def send_dat(texts, q_text, q_result):
     
 
 def proc_encode(q_text, q_enc, model):
-    """
-    发送数据
-    """
     while True:
         print("proc_encode.")
         dat = q_text.get()
@@ -113,11 +102,7 @@ def proc_encode(q_text, q_enc, model):
         q_enc.put( (src_enc,src_mask) )
 
 def proc_decode(q_enc, q_result, model):
-    """
-    接收数据
-    """
     while True:
-        # 接收数据
         print("proc_decode rev:")
         dat, src_mask = q_enc.get()
         #if not dat is None:
@@ -142,7 +127,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # 开始计时
     start = time.time()
 
     use_cuda = args.cuda and torch.cuda.is_available()
@@ -152,7 +136,6 @@ if __name__ == '__main__':
     mp.set_start_method('spawn')
     #mp.set_start_method('forkserver')
 
-    # 加载模型
     model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                        config.d_model, config.d_ff, config.n_heads, config.dropout)
 
@@ -182,9 +165,7 @@ if __name__ == '__main__':
     p_encode.start()
 
     estime = (time.time() - start)*1000
-    print('创建进程用时:%f 毫秒' % estime )
 
-    # 开始计时
     start = time.time()
 
     print('Create sender process...')
@@ -196,13 +177,8 @@ if __name__ == '__main__':
     #p_decode.join()
     p_sender.join()
     
-    # 发送文本数据
     #send_dat(texts, q_text)
 
     estime = (time.time() - start)*1000
-    print('用时:%f 毫秒' % estime )
-    
-    #p_encode.terminate()
-    #p_decode.terminate()
-    #p_sender.terminate()
+    print('use time:%f 毫秒' % estime )
 
