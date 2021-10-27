@@ -6,9 +6,7 @@ import os
 import re
 import json
 import logging
-#from flask import Flask, request, render_template, jsonify, json
-
-
+#from flask import Flask, request, render_template, jsonify, json=
 #import multiprocessing
 import time
 
@@ -180,5 +178,5 @@ if __name__ == '__main__':
     #send_dat(texts, q_text)
 
     estime = (time.time() - start)*1000
-    print('use time:%f 毫秒' % estime )
+    print('use time:%f ms' % estime )
 
