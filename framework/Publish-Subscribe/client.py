@@ -12,13 +12,10 @@ context = zmq.Context()
 socket = context.socket(zmq.SUB)
 socket.connect("tcp://127.0.0.1:5560")
 
-# 频道名称
 channel = ''
 if len(sys.argv)==2:
     channel = sys.argv[1]
 
-# 1629854395479179
-# zmq.SUBSCRIBE 设置过滤器，如果设置了多个，用合集, ""表示所有消息 
 filter_title = ''
 if channel:
     # filter_title = json.dumps({'id':channel})[:-2]
