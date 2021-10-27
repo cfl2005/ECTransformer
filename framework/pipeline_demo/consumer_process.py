@@ -42,7 +42,6 @@ def consumer(ip, port, port_out):
     import zmq
     '''
 
-    # 加载模型
     model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                        config.d_model, config.d_ff, config.n_heads, config.dropout)
     model.share_memory()
