@@ -319,7 +319,7 @@ class ECTrans_Client():
             zmq_socket.send_json(work_message)
             message = zmq_socket.recv()
 
-        print('等待数据返回...')
+        print('wait data return...')
         result = []
         while 1:
             ret = result_queue.get()
@@ -357,7 +357,7 @@ if __name__ == '__main__':
 
     if cmd=='server':
         # python3 ECTrans.py --cmd=server --workers=2
-        print('正在启动服务端...')
+        print('start server...')
         server = ECTrans_Server(ip='127.0.0.1',
                                 port=5557,
                                 port_out=5560,
