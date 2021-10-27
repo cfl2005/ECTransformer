@@ -152,7 +152,6 @@ class Encoder(nn.Module):
     # N = 6
     def __init__(self, layer, N):
         super(Encoder, self).__init__()
-        # 复制N个encoder layer
         self.layers = clones(layer, N)
         # Layer Norm
         self.norm = LayerNorm(layer.size)
