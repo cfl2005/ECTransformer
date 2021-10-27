@@ -79,7 +79,7 @@ if os.name=='nt':
         debug = bool(args.debug)
     )
 else:
-    # 启动服务 for linux 
+    # start server for linux 
     from gevent import pywsgi
     logging.info('Running under Linux...')
     logging.info('service is ready...')
@@ -90,4 +90,3 @@ else:
 
 if __name__ == '__main__':
     pass
-
