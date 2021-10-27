@@ -86,7 +86,6 @@ def consumer_encoder(ip, port, port_out, model_encoder):
         torch.cuda.empty_cache()
 
         encode_dat = [src_enc.cpu().numpy().tolist(), src_mask.cpu().numpy().tolist()]
-        # 组合数据,并发送
         jsdat = {'id': wid, 
                 'encode_dat':encode_dat, 
                 'consumer_encoder': consumer_id}
@@ -118,7 +117,6 @@ def consumer_decoder(ip, port, port_out, model_decoder, model_generator):
                                                 model_generator, use_beam=True)
         torch.cuda.empty_cache()
         # print('translation:',translation)
-        # 组合数据,并发送
         jsdat = {'id': wid, 
                 'result': translation,
                 'consumer_encoder':consumer_encoder,
