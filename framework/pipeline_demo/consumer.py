@@ -25,7 +25,6 @@ def consumer(ip, port, port_out):
     consumer_sender = context.socket(zmq.PUSH)
     consumer_sender.connect("tcp://%s:%d"%(ip, port_out))
     
-    # Ñ­»·´¦Àí
     while True:
         work = consumer_receiver.recv_json()
         data = work['num']
@@ -49,7 +48,3 @@ if __name__ == '__main__':
         
     for i in range(workers):
         p_workers[i].start()
-
-
-
-
