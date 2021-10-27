@@ -17,7 +17,7 @@ epoch_num = 40
 early_stop = 5
 lr = 3e-4
 
-# greed decode的最大句子长度
+# greed decode
 max_len = 60
 # beam size for bleu
 beam_size = 3
