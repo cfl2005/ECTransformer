@@ -16,7 +16,6 @@ print('tcp://127.0.0.1:5560')
 while True:
     dat = socket.recv()
     print(dat)
-    # ·¢»ØÄÚÈÝ
     socket.send(dat)
     print('-'*40)
 
@@ -24,4 +23,3 @@ while True:
 
 if __name__ == '__main__':
     pass
-
