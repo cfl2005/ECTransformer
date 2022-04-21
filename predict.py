@@ -26,7 +26,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import warnings
 warnings.filterwarnings('ignore')
 
-nvmlInit() #初始化
+nvmlInit()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NMT No Process Batch Predict')
