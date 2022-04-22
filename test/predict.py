@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
+__author__ = 'xmxoxo<xmxoxo@qq.com>'
+
 import argparse
 import os
 import re
@@ -26,7 +28,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import warnings
 warnings.filterwarnings('ignore')
 
-nvmlInit()
+nvmlInit() #初始化
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NMT No Process Batch Predict')
@@ -37,6 +39,9 @@ if __name__ == '__main__':
     datafile = args.datafile
     logfile = args.logfile
     batch_size = args.batch_size
+
+    # 开始计时
+    start = time.time()
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -52,10 +57,11 @@ if __name__ == '__main__':
         print('data file error')
         sys.exit()
     
+
     print(' NMT Task: No Process Batch '.center(40,'-'))
     print('total sentences:%d'%total_sent)
     print('Building model...')
-    start = time.time()
+    # 加载模型
     model = make_model(config.src_vocab_size, config.tgt_vocab_size, config.n_layers,
                        config.d_model, config.d_ff, config.n_heads, config.dropout)
 
@@ -66,11 +72,22 @@ if __name__ == '__main__':
     loadstime = (time.time() - start)*1000
     memory = GPU_memory(0)
 
-    start = time.time()
-    print('create process...')
-    result = translate_batch(sentences, model, batch_size=batch_size)
+    # 开始计时
+    # start = time.time()
+    print('create task...')
+    if batch_size==1:
+        translate_texts(sentences, model, beam_search=True)
+    else:
+        result = translate_batch(sentences, model, batch_size=batch_size)
+
     predict_time = (time.time() - start)*1000
     avetime = predict_time/total_sent
+    
+    print('加载模型用时:%.3f 毫秒' % loadstime )
+    print('Used Memory:%d MB' % memory)
+    print('预测总计用时:%.3f 毫秒' % predict_time )
+    print('预测单句用时:%.3f 毫秒' % avetime )
 
     result = 'NoProcessBatch', total_sent, memory, loadstime, predict_time, avetime, batch_size
+    # 追加到日志文件
     savetofile(result, logfile)
