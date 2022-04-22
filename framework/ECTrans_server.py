@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
 import argparse
 import os
 import sys
@@ -39,37 +37,29 @@ def debug(func):
      
     return wrapTheFunction
 
-# 调度器算法类
 class SmratRouter():
     def __init__(self, senders) -> None:
         # self.queuelist = queuelist
         self.total_queue = n 
         self.queue_index = 0
         self.senders = senders
-        # 缓存器队列
         self.cache = mp.Queue()
         self.timestrap = time.time()
         self.cache_length = 0
         self.process = None
 
     def send_json(self, dat):
-        '''根据智能算法投递任务
-        '''
         isbatch = 0
-        # 根据数据大小确定实时还是批量
         length = len(dat['texts'])
-        if length >= ECTrans_config.batch_value: # >=256为批处理
-            # 批量处理
+        if length >= ECTrans_config.batch_value:
             isbatch = 1
         else:
-            # 实时处理
             isbatch = 0
 
         tid = dat['tid']
         sentences = dat['texts']
         #dat.update({"client_ids": [(tid,(0, length))]})
 
-        # 切割数据包
         total = length
         batch_size = ECTrans_config.batch_size
         sentlist = [sentences[i*batch_size:(i+1)*batch_size] 
@@ -85,12 +75,10 @@ class SmratRouter():
             if blen == batch_size:
                 self.sender[isbatch].send_json(dat_msg)
             else:
-                self.cache.put(dat_msg)  # 零星数据放入队列
+                self.cache.put(dat_msg)
                   
     def start(self, cache):
         def que_process(cache):
-            '''定时进程 处理零星数据，进行组包
-            '''
             batch_size = ECTrans_config.batch_size
             while 1:
                 dat_msg = None
@@ -98,7 +86,6 @@ class SmratRouter():
                 while 1:
                     if cache.size > 0:
                         dat = cache.get()
-                        # 组合数据包
                         if cur_length ==0:
                             dat_msg = dat
                             cur_length = dat['dat_len']
@@ -108,25 +95,22 @@ class SmratRouter():
                             dat_len = dat['dat_len']
                             cur_length += dat_len
                             ids = (tid, (b + cur_length, e + cur_length))
-                            # 添加到包中
                             dat_msg['client_ids'].append(ids)
                             dat_msg['texts'].extend(texts)
                             dat_msg['dat_len'] = cur_length 
                     
                     if cache.size ==0 or cur_length >= batch_size : break
                 
-                    # 发送数据
                     if dat_msg:
-                        print('发送组合包...', dat_msg['client_ids'])
+                        print('send data...', dat_msg['client_ids'])
                         self.sender[0].send_json(dat_msg)
                 
-                # 时间间隔
                 time.sleep(ECTrans_config.time_windows)
 
         self.process = mp.Process(target=que_process, args=(self.cache,))
         self.process.start()
 
-# 服务端: 任务接收者  client ==> port(REP) ==> port_task(PUSH)
+#  client ==> port(REP) ==> port_task(PUSH)
 def server_req(ip, port, port_task, workers):
     # @debug
     print("server_req: %d ==> %d " % (port, port_task) )
@@ -134,20 +118,16 @@ def server_req(ip, port, port_task, workers):
     receiver = context.socket(zmq.REP)
     receiver.bind("tcp://%s:%d"%(ip, port))
 
-    # 创建两个PUSH 分别为 实时 和批量
     sender_0 = context.socket(zmq.PUSH)
     sender_0.bind("tcp://%s:%d"%(ip, port_task))
     sender_1 = context.socket(zmq.PUSH)
     sender_1.bind("tcp://%s:%d"%(ip, port_task+1))
     sender = [sender_0, sender_1]
 
-    # 创建调度器
     smart_router = SmratRouter(sender, n=workers)
     smart_router.start()
     while True:
-        # 接收数据
         ret = receiver.recv_json()
-        # 数据拆包重新组合
         smart_router.send_json(ret)
         receiver.send('OK'.encode())
 
@@ -155,7 +135,6 @@ def proc_encode(ip, port_task, q_enc, model_encoder):
     """
     编码器
     """
-    # 创建ID号，创建ZMQ 
     consumer_id = random.randrange(1000,9999)
     print("proc_encode ID: #%s %d ==> Queue" % (consumer_id, port_task) )
     context = zmq.Context()
@@ -164,7 +143,6 @@ def proc_encode(ip, port_task, q_enc, model_encoder):
     consumer_receiver.connect("tcp://%s:%s"%(ip, port_task))
 
     while True:
-        # 获取任务数据
         data = consumer_receiver.recv_json()
         tid = data['client_ids']
         dat = data['texts']
