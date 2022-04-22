@@ -1,4 +1,4 @@
-# EcTrans_framework 配置项
+# EcTrans_framework config
 
 batch_size = 64
 
