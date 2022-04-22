@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
 
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
-
 import sys
 import os
 import time
@@ -27,7 +25,6 @@ logfile = args.logfile
 cmd = 'python3 predict.py --datafile=report/data_%s.txt --batch_size=%d --logfile=%s' % (datafile, batch_size, logfile)
 #print('cmd:', cmd)
 
-# 开始计时
 start = time.time()
 
 #os.system(cmd)
@@ -42,7 +39,7 @@ for p in pp:
 
 predict_time = (time.time() - start)*1000
 print('-'*40)
-print('测试总计用时:%.3f 毫秒' % predict_time )
+print('toal time:%.3f ms' % predict_time )
 
 if __name__ == '__main__':
     pass
