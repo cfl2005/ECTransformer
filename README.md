@@ -6,9 +6,7 @@ In this paper, we conducted a total of six groups of experiments to test the mod
 
 Before we start the experiment, we need to complete the deployment of the ParaTra framework by following the steps below.
 
-Step 1. Get the source code from the following link
-
-https://anonymous.4open.science/r/ParaTra
+Step 1. Get the source code from github
 
 Step 2. Model and test data
 
